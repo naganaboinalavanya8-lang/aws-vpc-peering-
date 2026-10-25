@@ -1,0 +1,49 @@
+{
+  "_comment": "Single source of truth for the CIDR plan. tests/test_network_plan.py checks it. The Terraform defaults and the docs must match it.",
+  "region_assumption": "ap-south-1",
+  "original_diagram": {
+    "vpc1_cidr": "28.0.0.0/16",
+    "vpc2_cidr": "28.200.0.0/16"
+  },
+  "vpcs": {
+    "vpc-a": {
+      "cidr": "10.0.0.0/16",
+      "subnets": {
+        "a-public": {"cidr": "10.0.1.0/24", "type": "public"},
+        "a-private": {"cidr": "10.0.2.0/24", "type": "private"}
+      },
+      "route_tables": {
+        "a-public-rt": {
+          "associated_subnets": ["a-public"],
+          "routes": [
+            {"destination": "10.0.0.0/16", "target": "local"},
+            {"destination": "0.0.0.0/0", "target": "igw"},
+            {"destination": "10.1.0.0/16", "target": "pcx"}
+          ]
+        },
+        "a-private-rt": {
+          "associated_subnets": ["a-private"],
+          "routes": [
+            {"destination": "10.0.0.0/16", "target": "local"},
+            {"destination": "10.1.0.0/16", "target": "pcx"}
+          ]
+        }
+      }
+    },
+    "vpc-b": {
+      "cidr": "10.1.0.0/16",
+      "subnets": {
+        "b-private": {"cidr": "10.1.1.0/24", "type": "private"}
+      },
+      "route_tables": {
+        "b-private-rt": {
+          "associated_subnets": ["b-private"],
+          "routes": [
+            {"destination": "10.1.0.0/16", "target": "local"},
+            {"destination": "10.0.0.0/16", "target": "pcx"}
+          ]
+        }
+      }
+    }
+  }
+}

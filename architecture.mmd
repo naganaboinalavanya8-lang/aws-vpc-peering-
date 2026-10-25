@@ -1,0 +1,37 @@
+flowchart TB
+    NET(("Internet"))
+    ME["Your laptop<br/>(only your IP is allowed)"]
+
+    subgraph REGION["AWS Region (assumed ap-south-1) - all subnets in ONE Availability Zone"]
+        subgraph VPCA["VPC A - 10.0.0.0/16"]
+            IGW["Internet Gateway"]
+            subgraph PUB["Public subnet 10.0.1.0/24 - route table a-public-rt"]
+                EC2P["EC2 a-public<br/>has a public IP"]
+            end
+            subgraph PRIVA["Private subnet 10.0.2.0/24 - route table a-private-rt"]
+                EC2A["EC2 a-private<br/>no public IP"]
+                EICEA["EC2 Instance Connect<br/>Endpoint A"]
+            end
+        end
+
+        PCX{{"VPC peering connection<br/>A to B (not transitive)"}}
+
+        subgraph VPCB["VPC B - 10.1.0.0/16"]
+            subgraph PRIVB["Private subnet 10.1.1.0/24 - route table b-private-rt"]
+                EC2B["EC2 b-private<br/>no public IP"]
+                EICEB["EC2 Instance Connect<br/>Endpoint B"]
+            end
+        end
+    end
+
+    ME -->|"HTTP 8080 from my IP only"| NET
+    NET <-->|"0.0.0.0/0 route"| IGW
+    IGW <--> EC2P
+    EC2P <-->|"10.1.0.0/16 route"| PCX
+    EC2A <-->|"10.1.0.0/16 route"| PCX
+    PCX <-->|"10.0.0.0/16 route"| EC2B
+    ME -.->|"admin shell (IAM-authorised)"| EICEA
+    ME -.->|"admin shell (IAM-authorised)"| EICEB
+    EICEA -.->|"SSH 22"| EC2P
+    EICEA -.->|"SSH 22"| EC2A
+    EICEB -.->|"SSH 22"| EC2B

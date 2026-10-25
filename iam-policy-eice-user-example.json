@@ -1,0 +1,32 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "OpenTunnelThroughTheEndpoints",
+      "Effect": "Allow",
+      "Action": "ec2-instance-connect:OpenTunnel",
+      "Resource": "arn:aws:ec2:REGION:ACCOUNT_ID:instance-connect-endpoint/*"
+    },
+    {
+      "Sid": "PushTemporaryKeyToLabInstances",
+      "Effect": "Allow",
+      "Action": "ec2-instance-connect:SendSSHPublicKey",
+      "Resource": "arn:aws:ec2:REGION:ACCOUNT_ID:instance/*",
+      "Condition": {
+        "StringEquals": {
+          "ec2:ResourceTag/Project": "vpc-peering-lab",
+          "ec2-instance-connect:osuser": "ec2-user"
+        }
+      }
+    },
+    {
+      "Sid": "ReadOnlyLookups",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:DescribeInstances",
+        "ec2:DescribeInstanceConnectEndpoints"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
