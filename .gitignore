@@ -1,0 +1,21 @@
+# Terraform local state and cache (state files can contain sensitive data)
+*.tfstate
+*.tfstate.*
+.terraform/
+crash.log
+*.tfvars
+!*.tfvars.example
+# Keep the lock file out only if you prefer; committing it is recommended:
+# .terraform.lock.hcl
+
+# Keys and secrets: never commit these
+*.pem
+*.key
+.env
+credentials
+*.csv
+
+# Editors / OS
+.DS_Store
+.vscode/
+__pycache__/
